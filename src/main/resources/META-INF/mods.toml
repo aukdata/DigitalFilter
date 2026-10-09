@@ -4,7 +4,7 @@ license="MIT"
 
 [[mods]]
 modId="digitalfilter"
-version="1.1.0"
+version="1.2.0"
 displayName="Digital Filter"
 authors="aukdata"
 description='''Adds a search box to the Mekanism Digital Miner filter list. Client-side only.'''

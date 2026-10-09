@@ -6,10 +6,13 @@
   "client": [
     "FilterButtonMixin",
     "GuiDigitalMinerConfigMixin",
+    "GuiElementInvoker",
     "GuiFilterHolderAccessor",
     "GuiFilterHolderMixin",
-    "MekanismButtonMixin",
+    "GuiMinerTextFilterMixin",
     "GuiScrollableElementAccessor",
+    "GuiTextFilterAccessor",
+    "MekanismButtonMixin",
     "MovableFilterButtonMixin"
   ],
   "injectors": {
