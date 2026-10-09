@@ -1,5 +1,6 @@
 package aukdata.digitalfilter.mixin;
 
+import aukdata.digitalfilter.DigitalFilterLayout;
 import aukdata.digitalfilter.FilterSearch;
 import aukdata.digitalfilter.SearchableFilterScreen;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = GuiDigitalMinerConfig.class, remap = false)
@@ -54,6 +56,19 @@ public abstract class GuiDigitalMinerConfigMixin extends GuiFilterHolder<MinerFi
 
     protected GuiDigitalMinerConfigMixin(MekanismTileContainer<TileEntityDigitalMiner> container, Inventory inv, Component title) {
         super(container, inv, title);
+    }
+
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void df$growForExtraRows(CallbackInfo ci) {
+        int extra = DigitalFilterLayout.extraRows() * DigitalFilterLayout.ROW_HEIGHT;
+        imageHeight += extra;
+        inventoryLabelY += extra;
+    }
+
+    @ModifyArg(method = "addGuiElements", index = 2, at = @At(value = "INVOKE",
+          target = "Lmekanism/client/gui/element/button/TranslationButton;<init>(Lmekanism/client/gui/IGuiWrapper;IIIILmekanism/api/text/ILangEntry;Ljava/lang/Runnable;)V"))
+    private int df$moveNewFilterButton(int y) {
+        return y + DigitalFilterLayout.extraRows() * DigitalFilterLayout.ROW_HEIGHT;
     }
 
     @Inject(method = "addGuiElements", at = @At("TAIL"))

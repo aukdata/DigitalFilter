@@ -4,6 +4,7 @@
   "package": "aukdata.digitalfilter.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "DigitalMinerConfigContainerMixin",
     "FilterButtonMixin",
     "GuiDigitalMinerConfigMixin",
     "GuiElementInvoker",
