@@ -8,6 +8,7 @@
     "GuiDigitalMinerConfigMixin",
     "GuiFilterHolderAccessor",
     "GuiFilterHolderMixin",
+    "MekanismButtonMixin",
     "GuiScrollableElementAccessor",
     "MovableFilterButtonMixin"
   ],

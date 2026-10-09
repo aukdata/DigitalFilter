@@ -5,6 +5,7 @@ import aukdata.digitalfilter.SearchableFilterScreen;
 import java.util.ArrayList;
 import java.util.List;
 import mekanism.client.gui.GuiFilterHolder;
+import mekanism.client.gui.element.button.MekanismButton;
 import mekanism.client.gui.element.text.GuiTextField;
 import mekanism.common.content.filter.IFilter;
 import mekanism.common.content.miner.MinerFilter;
@@ -30,7 +31,9 @@ public abstract class GuiDigitalMinerConfigMixin extends GuiFilterHolder<MinerFi
     @Unique
     private static final int DF_SEARCH_Y = 5;
     @Unique
-    private static final int DF_SEARCH_WIDTH = 72;
+    private static final int DF_SEARCH_WIDTH = 60;
+    @Unique
+    private static final int DF_CLEAR_SIZE = 11;
     @Unique
     private static final int DF_SEARCH_HEIGHT = 11;
     @Unique
@@ -60,12 +63,21 @@ public abstract class GuiDigitalMinerConfigMixin extends GuiFilterHolder<MinerFi
         df$searchField.setMaxLength(64);
         //Keep the query when the screen is re-initialized (e.g. on window resize)
         df$searchField.setText(previous);
-        df$searchField.setResponder(text -> {
-            if (!text.equals(df$query)) {
-                df$query = text;
-                ((GuiScrollableElementAccessor) ((GuiFilterHolderAccessor) this).df$getScrollBar()).df$setScroll(0);
-            }
-        });
+        df$searchField.setResponder(this::df$setQuery);
+        addRenderableWidget(new MekanismButton(this, DF_SEARCH_X + DF_SEARCH_WIDTH + 1, DF_SEARCH_Y, DF_CLEAR_SIZE, DF_CLEAR_SIZE, Component.literal("×"),
+              () -> {
+                  df$searchField.setText("");
+                  df$setQuery("");
+              }, (element, guiGraphics, mouseX, mouseY) -> element.displayTooltips(guiGraphics, mouseX, mouseY,
+              Component.translatable("digitalfilter.search.clear"))));
+    }
+
+    @Unique
+    private void df$setQuery(String text) {
+        if (!text.equals(df$query)) {
+            df$query = text;
+            ((GuiScrollableElementAccessor) ((GuiFilterHolderAccessor) this).df$getScrollBar()).df$setScroll(0);
+        }
     }
 
     @Inject(method = "drawTitleText", at = @At("HEAD"), cancellable = true)
