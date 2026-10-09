@@ -1,0 +1,31 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="digitalfilter"
+version="1.0.0"
+displayName="Digital Filter"
+authors="aukdata"
+description='''Adds a search box to the Mekanism Digital Miner filter list. Client-side only.'''
+
+[[dependencies.digitalfilter]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.digitalfilter]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.20.2)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.digitalfilter]]
+    modId="mekanism"
+    mandatory=true
+    versionRange="[10.4.0,)"
+    ordering="AFTER"
+    side="CLIENT"
