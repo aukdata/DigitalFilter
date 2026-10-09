@@ -1,4 +1,17 @@
 {
   "digitalfilter.search.hint": "検索...",
-  "digitalfilter.search.clear": "検索をクリア"
+  "digitalfilter.search.clear": "検索をクリア",
+  "digitalfilter.state.all": "表示：すべて",
+  "digitalfilter.state.enabled": "表示：有効なもののみ",
+  "digitalfilter.state.disabled": "表示：無効なもののみ",
+  "digitalfilter.state.short.all": "全",
+  "digitalfilter.state.short.enabled": "有",
+  "digitalfilter.state.short.disabled": "無",
+  "digitalfilter.sort.registered": "並び順：登録順",
+  "digitalfilter.sort.mod": "並び順：Mod順",
+  "digitalfilter.sort.name": "並び順：名前順",
+  "digitalfilter.sort.short.registered": "登",
+  "digitalfilter.sort.short.mod": "M",
+  "digitalfilter.sort.short.name": "名",
+  "digitalfilter.view.cycle": "左クリック：次へ／右クリック：前へ"
 }

@@ -2,6 +2,7 @@ package aukdata.digitalfilter.mixin;
 
 import aukdata.digitalfilter.DigitalFilterLayout;
 import aukdata.digitalfilter.FilterSearch;
+import aukdata.digitalfilter.FilterView;
 import aukdata.digitalfilter.SearchableFilterScreen;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,11 @@ public abstract class GuiDigitalMinerConfigMixin extends GuiFilterHolder<MinerFi
     private static final int DF_SEARCH_HEIGHT = 11;
     @Unique
     private static final int DF_TITLE_LEFT = 16;
+    //The "New Filter" button is narrowed to make room for the state and sort buttons beside it
+    @Unique
+    private static final int DF_NEW_FILTER_WIDTH = 72;
+    @Unique
+    private static final int DF_VIEW_BUTTON_WIDTH = 12;
 
     @Unique
     private GuiTextField df$searchField;
@@ -50,7 +56,13 @@ public abstract class GuiDigitalMinerConfigMixin extends GuiFilterHolder<MinerFi
     @Unique
     private final List<MinerFilter<?>> df$snapshot = new ArrayList<>();
     @Unique
-    private String df$snapshotQuery;
+    private FilterView.State df$state = FilterView.State.ALL;
+    @Unique
+    private FilterView.Sort df$sort = FilterView.Sort.REGISTERED;
+    @Unique
+    private final List<Boolean> df$snapshotEnabled = new ArrayList<>();
+    @Unique
+    private String df$snapshotKey;
     @Unique
     private boolean df$redirectingClick;
 
@@ -71,6 +83,12 @@ public abstract class GuiDigitalMinerConfigMixin extends GuiFilterHolder<MinerFi
         return y + DigitalFilterLayout.extraRows() * DigitalFilterLayout.ROW_HEIGHT;
     }
 
+    @ModifyArg(method = "addGuiElements", index = 3, at = @At(value = "INVOKE",
+          target = "Lmekanism/client/gui/element/button/TranslationButton;<init>(Lmekanism/client/gui/IGuiWrapper;IIIILmekanism/api/text/ILangEntry;Ljava/lang/Runnable;)V"))
+    private int df$narrowNewFilterButton(int width) {
+        return DF_NEW_FILTER_WIDTH;
+    }
+
     @Inject(method = "addGuiElements", at = @At("TAIL"))
     private void df$addSearchField(CallbackInfo ci) {
         String previous = df$query;
@@ -85,13 +103,46 @@ public abstract class GuiDigitalMinerConfigMixin extends GuiFilterHolder<MinerFi
                   df$setQuery("");
               }, (element, guiGraphics, mouseX, mouseY) -> element.displayTooltips(guiGraphics, mouseX, mouseY,
               Component.translatable("digitalfilter.search.clear"))));
+
+        //State (all / enabled / disabled) and sort (registered / mod / name) buttons; left click cycles forward, right click backward
+        int viewY = 136 + DigitalFilterLayout.extraRows() * DigitalFilterLayout.ROW_HEIGHT;
+        int stateX = 56 + DF_NEW_FILTER_WIDTH + 1;
+        MekanismButton[] stateButton = new MekanismButton[1];
+        stateButton[0] = addRenderableWidget(new MekanismButton(this, stateX, viewY, DF_VIEW_BUTTON_WIDTH, 20, df$state.label(),
+              () -> df$setState(stateButton[0], 1), () -> df$setState(stateButton[0], -1),
+              (element, guiGraphics, mouseX, mouseY) -> element.displayTooltips(guiGraphics, mouseX, mouseY, df$state.description(),
+                    Component.translatable("digitalfilter.view.cycle"))));
+        MekanismButton[] sortButton = new MekanismButton[1];
+        sortButton[0] = addRenderableWidget(new MekanismButton(this, stateX + DF_VIEW_BUTTON_WIDTH, viewY, DF_VIEW_BUTTON_WIDTH, 20, df$sort.label(),
+              () -> df$setSort(sortButton[0], 1), () -> df$setSort(sortButton[0], -1),
+              (element, guiGraphics, mouseX, mouseY) -> element.displayTooltips(guiGraphics, mouseX, mouseY, df$sort.description(),
+                    Component.translatable("digitalfilter.view.cycle"))));
+    }
+
+    @Unique
+    private void df$setState(MekanismButton button, int direction) {
+        df$state = FilterView.cycle(df$state, direction);
+        button.setMessage(df$state.label());
+        df$resetScroll();
+    }
+
+    @Unique
+    private void df$setSort(MekanismButton button, int direction) {
+        df$sort = FilterView.cycle(df$sort, direction);
+        button.setMessage(df$sort.label());
+        df$resetScroll();
+    }
+
+    @Unique
+    private void df$resetScroll() {
+        ((GuiScrollableElementAccessor) ((GuiFilterHolderAccessor) this).df$getScrollBar()).df$setScroll(0);
     }
 
     @Unique
     private void df$setQuery(String text) {
         if (!text.equals(df$query)) {
             df$query = text;
-            ((GuiScrollableElementAccessor) ((GuiFilterHolderAccessor) this).df$getScrollBar()).df$setScroll(0);
+            df$resetScroll();
         }
     }
 
@@ -112,11 +163,11 @@ public abstract class GuiDigitalMinerConfigMixin extends GuiFilterHolder<MinerFi
     }
 
     /**
-     * Filter buttons pass their position in the searched list; open the filter that is actually shown there.
+     * Filter buttons pass their position in the displayed list; open the filter that is actually shown there.
      */
     @Inject(method = "onClick", at = @At("HEAD"), cancellable = true)
     private void df$remapClick(IFilter<?> filter, int index, CallbackInfo ci) {
-        if (df$redirectingClick || !df$isSearching()) {
+        if (df$redirectingClick || !df$hasCustomView()) {
             return;
         }
         ci.cancel();
@@ -132,8 +183,8 @@ public abstract class GuiDigitalMinerConfigMixin extends GuiFilterHolder<MinerFi
     }
 
     @Override
-    public boolean df$isSearching() {
-        return !df$query.isBlank();
+    public boolean df$hasCustomView() {
+        return !df$query.isBlank() || df$state != FilterView.State.ALL || df$sort != FilterView.Sort.REGISTERED;
     }
 
     @Override
@@ -144,7 +195,7 @@ public abstract class GuiDigitalMinerConfigMixin extends GuiFilterHolder<MinerFi
 
     @Override
     public int df$toRealIndex(int visibleIndex) {
-        if (!df$isSearching()) {
+        if (!df$hasCustomView()) {
             return visibleIndex;
         }
         df$refreshMatches();
@@ -154,27 +205,36 @@ public abstract class GuiDigitalMinerConfigMixin extends GuiFilterHolder<MinerFi
     @Unique
     private void df$refreshMatches() {
         List<MinerFilter<?>> filters = getFilterManager().getFilters();
-        if (df$query.equals(df$snapshotQuery) && df$sameFilters(filters)) {
+        String key = df$query + '\0' + df$state + '\0' + df$sort;
+        if (key.equals(df$snapshotKey) && df$sameFilters(filters)) {
             return;
         }
-        df$snapshotQuery = df$query;
+        df$snapshotKey = key;
         df$snapshot.clear();
         df$snapshot.addAll(filters);
+        df$snapshotEnabled.clear();
         df$matches.clear();
         for (int i = 0; i < filters.size(); i++) {
-            if (FilterSearch.matches(filters.get(i), df$query)) {
+            MinerFilter<?> filter = filters.get(i);
+            df$snapshotEnabled.add(filter.isEnabled());
+            if (df$state.test(filter) && FilterSearch.matches(filter, df$query)) {
                 df$matches.add(i);
             }
         }
+        df$sort.sort(df$matches, filters);
     }
 
+    /**
+     * Toggling a filter keeps the same instance, so the enabled flags are compared too (they matter for the state filter).
+     */
     @Unique
     private boolean df$sameFilters(List<MinerFilter<?>> filters) {
         if (filters.size() != df$snapshot.size()) {
             return false;
         }
         for (int i = 0; i < filters.size(); i++) {
-            if (filters.get(i) != df$snapshot.get(i)) {
+            MinerFilter<?> filter = filters.get(i);
+            if (filter != df$snapshot.get(i) || filter.isEnabled() != df$snapshotEnabled.get(i)) {
                 return false;
             }
         }

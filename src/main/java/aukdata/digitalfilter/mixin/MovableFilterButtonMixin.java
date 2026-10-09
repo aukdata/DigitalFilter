@@ -26,7 +26,7 @@ public abstract class MovableFilterButtonMixin {
      */
     @Inject(method = "updateButtonVisibility", at = @At("TAIL"))
     private void df$hideMoveButtonsWhileSearching(CallbackInfo ci) {
-        if (((GuiElement) (Object) this).gui() instanceof SearchableFilterScreen screen && screen.df$isSearching()) {
+        if (((GuiElement) (Object) this).gui() instanceof SearchableFilterScreen screen && screen.df$hasCustomView()) {
             upButton.visible = false;
             downButton.visible = false;
         }

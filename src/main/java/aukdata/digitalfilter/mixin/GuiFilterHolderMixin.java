@@ -25,7 +25,7 @@ public abstract class GuiFilterHolderMixin {
     @ModifyArg(method = "addGuiElements", index = 4, at = @At(value = "INVOKE", target = SCROLL_BAR_INIT))
     private IntSupplier df$searchedFilterCount(IntSupplier maxElements) {
         if ((Object) this instanceof SearchableFilterScreen screen) {
-            return () -> screen.df$isSearching() ? screen.df$visibleCount() : maxElements.getAsInt();
+            return () -> screen.df$hasCustomView() ? screen.df$visibleCount() : maxElements.getAsInt();
         }
         return maxElements;
     }

@@ -5,7 +5,7 @@ package aukdata.digitalfilter;
  */
 public interface SearchableFilterScreen {
 
-    boolean df$isSearching();
+    boolean df$hasCustomView();
 
     /**
      * @return the number of filters matching the current search

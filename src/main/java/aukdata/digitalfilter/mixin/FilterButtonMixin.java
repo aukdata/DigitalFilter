@@ -39,7 +39,7 @@ public abstract class FilterButtonMixin implements FilterTooltipProvider {
      */
     @Inject(method = "getActualIndex", at = @At("RETURN"), cancellable = true)
     private void df$mapToRealIndex(CallbackInfoReturnable<Integer> cir) {
-        if (((GuiElement) (Object) this).gui() instanceof SearchableFilterScreen screen && screen.df$isSearching()) {
+        if (((GuiElement) (Object) this).gui() instanceof SearchableFilterScreen screen && screen.df$hasCustomView()) {
             cir.setReturnValue(screen.df$toRealIndex(cir.getReturnValue()));
         }
     }

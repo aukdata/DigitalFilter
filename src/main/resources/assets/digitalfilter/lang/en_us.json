@@ -1,4 +1,17 @@
 {
   "digitalfilter.search.hint": "Search...",
-  "digitalfilter.search.clear": "Clear search"
+  "digitalfilter.search.clear": "Clear search",
+  "digitalfilter.state.all": "Show: all filters",
+  "digitalfilter.state.enabled": "Show: enabled only",
+  "digitalfilter.state.disabled": "Show: disabled only",
+  "digitalfilter.state.short.all": "A",
+  "digitalfilter.state.short.enabled": "E",
+  "digitalfilter.state.short.disabled": "D",
+  "digitalfilter.sort.registered": "Order: as registered",
+  "digitalfilter.sort.mod": "Order: by mod",
+  "digitalfilter.sort.name": "Order: by name",
+  "digitalfilter.sort.short.registered": "#",
+  "digitalfilter.sort.short.mod": "M",
+  "digitalfilter.sort.short.name": "N",
+  "digitalfilter.view.cycle": "Left click: next / Right click: previous"
 }
