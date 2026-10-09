@@ -27,7 +27,7 @@ A client-side Mekanism addon for Minecraft 1.20.1 (Forge) that adds search to th
 
 ## 導入
 
-ビルドした `digitalfilter-1.20.1-<version>.jar` を、クライアントの `mods` フォルダに入れてください。古いバージョンの jar は外してください。
+[Releases](https://github.com/aukdata/DigitalFilter/releases) から `digitalfilter-1.20.1-<version>.jar` をダウンロードして、クライアントの `mods` フォルダに入れてください。古いバージョンの jar は外してください。
 
 ## ビルド
 
@@ -38,6 +38,15 @@ gradlew build
 ```
 
 `build/libs/` に jar ができます。
+
+## リリース
+
+バージョンのタグ（例：`v1.3.0`）を push すると、GitHub Actions がそのバージョンでビルドして、Release に jar を添付します。jar のバージョンはタグから決まります。
+
+```
+git tag v1.3.0
+git push origin v1.3.0
+```
 
 ## 仕組み
 
